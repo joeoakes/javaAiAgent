@@ -1,52 +1,84 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
-// Basic AI Security Agent class
 public class SecurityAgent {
-    private List<String> threatDatabase;
 
-    public SecurityAgent() {
-        threatDatabase = new ArrayList<>();
-        loadThreatDatabase();
+    // Enum for types of network threats
+    public enum ThreatType {
+        MALWARE, PHISHING, DOS, UNUSUAL_TRAFFIC
     }
 
-    private void loadThreatDatabase() {
-        // Simulating a threat database
-        threatDatabase.add("SQL Injection");
-        threatDatabase.add("Cross-Site Scripting");
-        threatDatabase.add("DDoS Attack");
-        threatDatabase.add("Phishing");
+    // Class to represent a network event
+    public static class NetworkEvent {
+        private String sourceIP;
+        private String destinationIP;
+        private long timestamp;
+        private String data;
+        private ThreatType threatType;
+
+        public NetworkEvent(String sourceIP, String destinationIP, long timestamp, String data) {
+            this.sourceIP = sourceIP;
+            this.destinationIP = destinationIP;
+            this.timestamp = timestamp;
+            this.data = data;
+            this.threatType = ThreatType.UNUSUAL_TRAFFIC; // Default threat type
+        }
+
+        // Getters and setters omitted for brevity
     }
 
-    public boolean analyzeThreat(String input) {
-        for (String threat : threatDatabase) {
-            if (input.toLowerCase().contains(threat.toLowerCase())) {
-                System.out.println("Threat Detected: " + threat);
-                return true;
+    // AI Agent class
+    public static class AIAgent {
+        private List<NetworkEvent> events;
+
+        public AIAgent() {
+            this.events = new ArrayList<>();
+        }
+
+        // Method to analyze network event
+        public void analyzeEvent(NetworkEvent event) {
+            events.add(event);
+            checkForThreats(event);
+        }
+
+        private void checkForThreats(NetworkEvent event) {
+            // Here's where you would implement your AI logic to detect threats
+            // This is a very simplistic example:
+            if (event.data.contains("malware")) {
+                event.threatType = ThreatType.MALWARE;
+            } else if (event.data.contains("phishing")) {
+                event.threatType = ThreatType.PHISHING;
+            } else if (event.data.contains("dos")) {
+                event.threatType = ThreatType.DOS;
+            } else {
+                // If no specific threat is detected, keep it as UNUSUAL_TRAFFIC
+            }
+
+            if (event.threatType != ThreatType.UNUSUAL_TRAFFIC) {
+                takeAction(event);
             }
         }
-        System.out.println("No Threat Detected.");
-        return false;
-    }
 
-    public void addThreat(String threat) {
-        threatDatabase.add(threat);
-        System.out.println("New threat added to the database: " + threat);
+        private void takeAction(NetworkEvent event) {
+            // This method would perform actions like logging, alerting, or blocking
+            System.out.println("Threat detected: " + event.threatType + " from " + event.sourceIP + " to " + event.destinationIP);
+            // Here you might want to:
+            // - Send an alert to security personnel
+            // - Block the IP address
+            // - Log the incident for further analysis
+        }
+
+        // Method to simulate monitoring network traffic
+        public void monitorNetwork() {
+            // This would be a loop in real scenario, continuously checking for new events
+            // Here we'll just simulate adding two events for demonstration
+            analyzeEvent(new NetworkEvent("192.168.1.1", "192.168.1.100", System.currentTimeMillis(), "Potential malware detected"));
+            analyzeEvent(new NetworkEvent("192.168.1.2", "192.168.1.101", System.currentTimeMillis(), "Normal traffic"));
+        }
     }
 
     public static void main(String[] args) {
-        SecurityAgent agent = new SecurityAgent();
-
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Enter a string to analyze for threats:");
-        String input = scanner.nextLine();
-
-        agent.analyzeThreat(input);
-
-        System.out.println("Add a new threat to the database:");
-        String newThreat = scanner.nextLine();
-        agent.addThreat(newThreat);
-
-        System.out.println("Re-checking threats:");
-        agent.analyzeThreat(input);
+        AIAgent aiAgent = new AIAgent();
+        aiAgent.monitorNetwork();
     }
 }
